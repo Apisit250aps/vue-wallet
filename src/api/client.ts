@@ -1,4 +1,3 @@
-// src/api/axios.js
 import axios from "axios";
 
 // Create an Axios instance
@@ -6,7 +5,7 @@ const apiClient = axios.create({
   baseURL: "http://localhost:8080", // Replace with your API's base URL
   headers: {
     "Content-Type": "application/json",
-  },
+  }, 
   withCredentials: true,
 });
 

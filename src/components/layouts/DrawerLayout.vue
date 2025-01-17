@@ -19,7 +19,7 @@
         <div class="navbar-end">
           <!-- Navigation links here -->
         </div>
-      </Navbar>
+  </Navbar>
       <main class="mt-3 px-3">
         <RouterView />
       </main>

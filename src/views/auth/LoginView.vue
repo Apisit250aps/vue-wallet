@@ -51,10 +51,15 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth"
+import { jwtDecode } from "jwt-decode";
 import { ref } from "vue"
+
 const auth = useAuthStore()
+
 const username = ref<string>("")
 const password = ref<string>("")
+
+const user = jwtDecode(auth.token as string)
 
 interface LoginFormEvent extends Event {
   preventDefault(): void
@@ -62,7 +67,6 @@ interface LoginFormEvent extends Event {
 
 const handleSubmit = async (e: LoginFormEvent): Promise<void> => {
   e.preventDefault()
-  console.log(username.value, password.value)
   await auth.login({
     username: username.value,
     password: password.value

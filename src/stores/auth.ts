@@ -1,13 +1,10 @@
-// src/stores/auth.js
 import { defineStore } from "pinia"
-import router from "../router"
-import apiClient from "@/api/client"
-import axios from "axios"
 import { jwtDecode } from "jwt-decode"
+import router from "../router"
+import apiClient from "@/api/client";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: jwtDecode(localStorage.getItem("auth_token") as string) || null,
     token: localStorage.getItem("auth_token") || null
   }),
   actions: {
@@ -16,12 +13,12 @@ export const useAuthStore = defineStore("auth", {
       password: string
     }): Promise<boolean> {
       try {
-        const response = await axios.post(
+        const response = await apiClient.post(
           "http://localhost:8080/api/login",
           credentials
         )
         this.token = response.data.data.token
-        console.log(response.data.data.token)
+        console.log(jwtDecode(response.data.data.token))
         localStorage.setItem("auth_token", this.token as string)
         return true
       } catch (error) {
@@ -34,7 +31,7 @@ export const useAuthStore = defineStore("auth", {
       password: string
     }): Promise<boolean> {
       try {
-        await apiClient.post("/auth/register", data)
+        await apiClient.post(`/api/register/`, data)
         return true
       } catch (error) {
         console.error("Registration failed", error)
@@ -42,7 +39,6 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     logout() {
-      this.user = null
       this.token = null
       localStorage.removeItem("token")
       router.push("/login")
@@ -50,7 +46,6 @@ export const useAuthStore = defineStore("auth", {
     async fetchUser() {
       try {
         const response = await apiClient.get("/auth/user")
-        this.user = response.data
       } catch (error) {
         this.logout()
       }
