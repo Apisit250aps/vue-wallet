@@ -1,16 +1,104 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue"
+
+const form = ref<{
+  amount: number
+  type: string
+  category: string
+  description?: string
+}>({
+  amount: 0,
+  type: "expense",
+  category: "utilities",
+  description: ""
+})
+</script>
 
 <template>
-  <div class="hero bg-base-200 min-h-screen">
-    <div class="hero-content text-center">
-      <div class="max-w-md">
-        <h1 class="text-5xl font-bold">Hello there</h1>
-        <p class="py-6">
-          Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-          excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a
-          id nisi.
-        </p>
-        <button class="btn btn-primary">Get Started</button>
+  <form>
+    <label class="form-control w-full">
+      <div class="label">
+        <span class="label-text">What is your name?</span>
+      </div>
+      <input
+        type="text"
+        placeholder="Type here"
+        class="input input-bordered w-full"
+        v-model="form.amount"
+      />
+    </label>
+    <label class="form-control w-full">
+      <div class="label">
+        <span class="label-text">Type</span>
+      </div>
+      <select class="input input-bordered w-full" v-model="form.type">
+        <option value="expense">Expense</option>
+        <option value="income">Income</option>
+      </select>
+    </label>
+    <label class="form-control w-full">
+      <div class="label">
+        <span class="label-text">Category</span>
+      </div>
+      <select class="input input-bordered w-full" v-model="form.category">
+        <option value="utilities" selected>Utilities</option>
+        <option value="rent">Rent</option>
+        <option value="groceries">Groceries</option>
+      </select>
+    </label>
+    <label class="form-control w-full">
+      <div class="label">
+        <span class="label-text">Description (optional)</span>
+      </div>
+      <input
+        type="text"
+        placeholder="Type here"
+        class="input input-bordered w-full"
+        v-model="form.description"
+      />
+    </label>
+  </form>
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title flex justify-between">
+        <h3>Transactions</h3>
+        <div class="card-actions"></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <!-- head -->
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Job</th>
+              <th>Favorite Color</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- row 1 -->
+            <tr class="bg-base-200">
+              <th>1</th>
+              <td>Cy Ganderton</td>
+              <td>Quality Control Specialist</td>
+              <td>Blue</td>
+            </tr>
+            <!-- row 2 -->
+            <tr>
+              <th>2</th>
+              <td>Hart Hagerty</td>
+              <td>Desktop Support Technician</td>
+              <td>Purple</td>
+            </tr>
+            <!-- row 3 -->
+            <tr>
+              <th>3</th>
+              <td>Brice Swyre</td>
+              <td>Tax Accountant</td>
+              <td>Red</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

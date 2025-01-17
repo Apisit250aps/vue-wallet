@@ -1,12 +1,19 @@
+import DrawerLayout from "@/components/layouts/DrawerLayout.vue";
 import { useAuthStore } from "@/stores/auth"
-import HomeView from "@/views/HomeView.vue"
 import { createRouter, createWebHistory } from "vue-router"
 
 const routes = [
   {
     path: "/",
     name: "Home",
-    component: HomeView
+    component: DrawerLayout,
+    children:[
+      {
+        path: "",
+        name: "Dashboard",
+        component: () => import("@/views/HomeView.vue")
+      },
+    ]
   },
   {
     path: "/login",

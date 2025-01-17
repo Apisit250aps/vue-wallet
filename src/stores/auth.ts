@@ -1,50 +1,62 @@
+// src/stores/auth.js
 import { defineStore } from "pinia"
+import router from "../router"
+import apiClient from "@/api/client"
 import axios from "axios"
+import { jwtDecode } from "jwt-decode"
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: null,
-    token: localStorage.getItem("token") || null
+    user: jwtDecode(localStorage.getItem("auth_token") as string) || null,
+    token: localStorage.getItem("auth_token") || null
   }),
-  getters: {
-    isAuthenticated: (state) => !!state.token
-  },
   actions: {
-    async login(credentials: { username: string; password: string }) {
+    async login(credentials: {
+      username: string
+      password: string
+    }): Promise<boolean> {
       try {
-        const response = await axios.post("/api/login", credentials)
-        this.token = response.data.token
-        this.user = response.data.user
-        localStorage.setItem("token", this.token as string)
-        axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`
+        const response = await axios.post(
+          "http://localhost:8080/api/login",
+          credentials
+        )
+        this.token = response.data.data.token
+        console.log(response.data.data.token)
+        localStorage.setItem("auth_token", this.token as string)
+        return true
       } catch (error) {
-        console.error("Login error:", error)
-        throw error
+        console.error("Login failed", error)
+        return false
       }
     },
-    async register(details: { username: string; password: string }) {
+    async register(data: {
+      username: string
+      password: string
+    }): Promise<boolean> {
       try {
-        await axios.post("/api/register", details)
+        await apiClient.post("/auth/register", data)
+        return true
       } catch (error) {
-        console.error("Registration error:", error)
-        throw error
+        console.error("Registration failed", error)
+        return false
       }
     },
-    async logout() {
-      this.token = null
+    logout() {
       this.user = null
+      this.token = null
       localStorage.removeItem("token")
-      delete axios.defaults.headers.common["Authorization"]
+      router.push("/login")
     },
     async fetchUser() {
-      if (!this.token) return
       try {
-        const response = await axios.get("/api/user")
+        const response = await apiClient.get("/auth/user")
         this.user = response.data
       } catch (error) {
-        console.error("Fetch user error:", error)
         this.logout()
       }
     }
+  },
+  getters: {
+    isAuthenticated: (state) => !!state.token
   }
 })
