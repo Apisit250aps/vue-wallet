@@ -14,13 +14,15 @@
         </div>
         <div class="navbar-center lg:navbar-start">
           <!-- Logo and branding here -->
-          <a class="btn btn-ghost text-xl">Wallet</a>
+          <a class="btn btn-ghost text-xl">Wallet {{ wallet.amount }} <i class="bx bx-wallet"></i></a>
         </div>
         <div class="navbar-end">
-          <!-- Navigation links here -->
+          <button class="btn btn-outline btn-error" @click="auth.logout">
+            <i class="bx bx-arrow-from-left"></i>
+          </button>
         </div>
-  </Navbar>
-      <main class="mt-3 px-3">
+      </Navbar>
+      <main class="mt-3">
         <RouterView />
       </main>
     </div>
@@ -32,14 +34,20 @@
       ></label>
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
-        <li><a>Sidebar Item 1</a></li>
-        <li><a>Sidebar Item 2</a></li>
+        <li>
+          <RouterLink to="/" active-class="active">Home</RouterLink>
+        </li>
       </ul>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RouterView } from "vue-router"
+import { RouterView, RouterLink } from "vue-router"
 import Navbar from "../navigate/Navbar.vue"
+import { useAuthStore } from "@/stores/auth"
+import { useTransactionStore } from "@/stores/transaction"
+const auth = useAuthStore()
+const wallet = useTransactionStore()
+
 </script>

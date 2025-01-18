@@ -1,21 +1,52 @@
 <script setup lang="ts">
+import { useTransactionStore, type ITransaction } from "@/stores/transaction"
+import Swal from "sweetalert2"
 import { ref } from "vue"
-
-const form = ref<{
-  amount: number
-  type: string
-  category: string
-  description?: string
-}>({
+const statements = useTransactionStore()
+const { addTransaction, deleteTransaction } = statements
+const form = ref<Partial<ITransaction>>({
   amount: 0,
   type: "expense",
-  category: "utilities",
+  category: "",
   description: ""
 })
+
+const modal = ref<HTMLDialogElement>()
+
+const thaiDate = (date: Date) => {
+  const event = new Date(date)
+
+  // Thai uses Buddhist calendar and 24-hour time
+  return event.toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })
+  // Expected output: "20/12/2555, 03:00:00"
+}
+
+const handleSubmit = async (e: Event) => {
+  e.preventDefault()
+  modal.value!.close()
+  const response = await addTransaction(form.value as ITransaction)
+
+  if (!response) return
+
+  const { status, message } = response
+  Swal.fire({
+    title: message,
+    icon: status as "success" | "error",
+    confirmButtonText: "Okay"
+  })
+  if (status == "success") {
+    form.value = {
+      amount: 0,
+      type: "expense",
+      category: "",
+      description: ""
+    }
+  }
+}
 </script>
 
 <template>
-  <dialog id="my_modal_3" class="modal">
+  <dialog id="my_modal_3" class="modal" ref="modal">
     <div class="modal-box">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -23,16 +54,17 @@ const form = ref<{
         </button>
       </form>
       <h3 class="text-lg font-bold">Transaction</h3>
-      <form>
+      <form @submit="handleSubmit">
         <label class="form-control w-full">
           <div class="label">
-            <span class="label-text">What is your name?</span>
+            <span class="label-text">Amount</span>
           </div>
           <input
-            type="text"
+            type="number"
             placeholder="Type here"
             class="input input-bordered w-full"
             v-model="form.amount"
+            min="0"
           />
         </label>
         <label class="form-control w-full">
@@ -48,12 +80,24 @@ const form = ref<{
           <div class="label">
             <span class="label-text">Category</span>
           </div>
-          <select class="input input-bordered w-full" v-model="form.category">
-            <option value="utilities" selected>Utilities</option>
-            <option value="rent">Rent</option>
-            <option value="groceries">Groceries</option>
-          </select>
+          <input
+            type="text"
+            placeholder="Type here"
+            class="input input-bordered w-full"
+            v-model="form.category"
+            list="cats"
+          />
+          <datalist id="cats" class="z-[50]">
+            <option
+              v-for="(item, index) in statements.category"
+              :key="index"
+              :value="item"
+            >
+              {{ item }}
+            </option>
+          </datalist>
         </label>
+
         <label class="form-control w-full">
           <div class="label">
             <span class="label-text">Description (optional)</span>
@@ -77,43 +121,55 @@ const form = ref<{
       <div class="card-title flex justify-between">
         <h3>Transactions</h3>
         <div class="card-actions">
-          <button class="btn" onclick="my_modal_3.showModal()">
+          <button class="btn btn-outline" onclick="my_modal_3.showModal()">
             <i class="bx bx-message-square-add"></i>
           </button>
         </div>
       </div>
+
       <div class="overflow-x-auto">
         <table class="table">
           <!-- head -->
           <thead>
             <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
+              <th>#</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th class="hidden lg:block">Description</th>
+              <th>Date Time</th>
             </tr>
           </thead>
           <tbody>
-            <!-- row 1 -->
-            <tr class="bg-base-200">
-              <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-            </tr>
-            <!-- row 2 -->
-            <tr>
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-            </tr>
-            <!-- row 3 -->
-            <tr>
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
+            <tr v-for="(item, index) in statements.transactions" :key="index">
+              <th>{{ index + 1 }}</th>
+              <td>{{ item.amount }}</td>
+              <td>
+                <div
+                  class="badge text-white"
+                  :class="{
+                    'badge-error': item.type === 'expense',
+                    'badge-success': item.type === 'income'
+                  }"
+                >
+                  {{ item.type }}
+                </div>
+              </td>
+              <td>
+                <div class="badge badge-outline">
+                  {{ item.category || "untitled" }}
+                </div>
+              </td>
+              <td class="hidden lg:block">{{ item.description }}</td>
+              <td>{{ thaiDate(item.created_at) }}</td>
+              <td>
+                <button
+                  class="btn btn-error btn-outline hover:text-white"
+                  @click="deleteTransaction(item.id)"
+                >
+                  <i class="bx bx-trash"></i>
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

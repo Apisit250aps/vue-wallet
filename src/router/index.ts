@@ -1,4 +1,4 @@
-import DrawerLayout from "@/components/layouts/DrawerLayout.vue";
+import DrawerLayout from "@/components/layouts/DrawerLayout.vue"
 import { useAuthStore } from "@/stores/auth"
 import { createRouter, createWebHistory } from "vue-router"
 
@@ -7,12 +7,12 @@ const routes = [
     path: "/",
     name: "Home",
     component: DrawerLayout,
-    children:[
+    children: [
       {
         path: "",
         name: "Dashboard",
         component: () => import("@/views/HomeView.vue")
-      },
+      }
     ]
   },
   {
@@ -22,12 +22,10 @@ const routes = [
     meta: { requiresAuth: false }
   }
 ]
-
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
-
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
